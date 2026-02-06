@@ -1,0 +1,7 @@
+<!-- Sound Toggle Button HTML -->
+<!-- Add this BEFORE the theme-toggle div in your sidebar -->
+
+<div class="sound-toggle" id="sound-toggle" onclick="toggleSound()">
+    <span>Sounds</span>
+    <span class="sound-icon" id="sound-icon">🔊</span>
+</div>

@@ -1,0 +1,17 @@
+    mp3_filename = f"{timestamp}.mp3"
+    mp3_filepath = os.path.join(folder, mp3_filename)
+    
+    # Convert to MP3 using ffmpeg
+    subprocess.run([
+        "ffmpeg", "-i", filepath, 
+        "-codec:a", "libmp3lame", 
+        "-b:a", "192k",
+        "-y",
+        mp3_filepath
+    ], check=True, capture_output=True)
+    
+    # Clean up temp file
+    if os.path.exists(filepath):
+        os.remove(filepath)
+    
+    return mp3_filename

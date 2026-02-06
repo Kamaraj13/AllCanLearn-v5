@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+venv_*/
+env/
+ENV/
+*.egg-info/
+
+# Environment
+.env
+.env.local
+
+# Logs
+*.log
+server.log
+cloudflare.log
+
+# TTS Output
+tts_output/*.aiff
+tts_output/*.wav
+tts_output/*.mp3
+
+# Episodes
+episodes_data/*.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# OS
+Thumbs.db
+
+# Keep empty directories
+!tts_output/.gitkeep
+!episodes_data/.gitkeep
+node_modules

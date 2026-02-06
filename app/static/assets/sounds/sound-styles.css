@@ -1,0 +1,33 @@
+/* Sound Toggle Button Styles - Add after .theme-toggle:hover */
+.sound-toggle {
+    padding: 14px;
+    background: rgba(26, 31, 58, 0.7);
+    backdrop-filter: blur(20px);
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 600;
+    transition: all 0.3s;
+    margin-bottom: 10px;
+}
+
+body.bright-mode .sound-toggle {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: rgba(0, 0, 0, 0.15);
+}
+
+.sound-toggle:hover {
+    transform: scale(1.02);
+    border-color: #10b981;
+}
+
+.sound-toggle.disabled {
+    opacity: 0.6;
+}
+
+.sound-icon {
+    font-size: 20px;
+}

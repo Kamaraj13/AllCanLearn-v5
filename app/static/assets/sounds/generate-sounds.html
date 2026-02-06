@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sound Generator - AllCanLearn</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 { color: #667eea; }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: transform 0.2s;
+        }
+        button:hover { transform: scale(1.05); }
+        button:active { transform: scale(0.95); }
+        .info {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔊 AllCanLearn Sound Effects Generator</h1>
+        <div class="info">
+            <p><strong>Instructions:</strong> Click the buttons below to preview sounds. These sounds will be automatically generated using Web Audio API.</p>
+            <p>No files needed - sounds are created in the browser!</p>
+        </div>
+        
+        <h3>Preview Sounds:</h3>
+        <button onclick="playClick()">� Water Drop (Click)</button>
+        <button onclick="playHover()">🔔 Gentle Chime (Hover)</button>
+        <button onclick="playSuccess()">🎐 Wind Chimes (Success)</button>
+        <button onclick="playError()">🌊 Soft Wave (Error)</button>
+        <button onclick="playNotification()">✨ Bell Harmonics (Notification)</button>
+        <button onclick="playToggle()">⚡ Soft Tick (Toggle)</button>
+        <button onclick="playPop()">💦 Raindrop (Pop/Drop)</button>
+        <button onclick="playWhoosh()">🍃 Gentle Breeze (Whoosh)</button>
+    </div>
+
+    <script>
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        // Water drop click
+        function playClick() {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            const filter = audioContext.createBiquadFilter();
+            
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioContext.destination);
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(1200, audioContext.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.1);
+            
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(2000, audioContext.currentTime);
+            filter.Q.setValueAtTime(10, audioContext.currentTime);
+            
+            gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+            
+            osc.start(audioContext.currentTime);
+            osc.stop(audioContext.currentTime + 0.15);
+        }
+
+        // Gentle chime hover
+        function playHover() {
+            const osc1 = audioContext.createOscillator();
+            const osc2 = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            
+            osc1.connect(gain);
+            osc2.connect(gain);
+            gain.connect(audioContext.destination);
+            
+            osc1.frequency.value = 1760;
+            osc2.frequency.value = 2637;
+            osc1.type = 'sine';
+            osc2.type = 'sine';
+            
+            gain.gain.setValueAtTime(0.15, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+            
+            osc1.start(audioContext.currentTime);
+            osc2.start(audioContext.currentTime);
+            osc1.stop(audioContext.currentTime + 0.2);
+            osc2.stop(audioContext.currentTime + 0.2);
+        }
+
+        // Wind chimes success
+        function playSuccess() {
+            const notes = [523.25, 659.25, 783.99, 987.77];
+            notes.forEach((freq, i) => {
+                setTimeout(() => {
+                    const osc = audioContext.createOscillator();
+                    const gain = audioContext.createGain();
+                    const filter = audioContext.createBiquadFilter();
+                    
+                    osc.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(audioContext.destination);
+                    
+                    osc.frequency.value = freq;
+                    osc.type = 'sine';
+                    
+                    filter.type = 'lowpass';
+                    filter.frequency.value = 3000;
+                    filter.Q.value = 5;
+                    
+                    gain.gain.setValueAtTime(0.25, audioContext.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+                    
+                    osc.start(audioContext.currentTime);
+                    osc.stop(audioContext.currentTime + 0.4);
+                }, i * 80);
+            });
+        }
+
+        // Soft wave error
+        function playError() {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            const filter = audioContext.createBiquadFilter();
+            
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioContext.destination);
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(400, audioContext.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 0.3);
+            
+            filter.type = 'lowpass';
+            filter.frequency.value = 800;
+            
+            gain.gain.setValueAtTime(0.25, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            
+            osc.start(audioContext.currentTime);
+            osc.stop(audioContext.currentTime + 0.3);
+        }
+
+        // Bell harmonics notification
+        function playNotification() {
+            const frequencies = [880, 1320, 1760];
+            frequencies.forEach((freq, i) => {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                
+                osc.frequency.value = freq;
+                osc.type = 'sine';
+                
+                const vol = 0.2 * (1 - i * 0.3);
+                gain.gain.setValueAtTime(vol, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                
+                osc.start(audioContext.currentTime);
+                osc.stop(audioContext.currentTime + 0.5);
+            });
+        }
+
+        // Soft tick toggle
+        function playToggle() {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            const filter = audioContext.createBiquadFilter();
+            
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioContext.destination);
+            
+            osc.type = 'sine';
+            osc.frequency.value = 800;
+            
+            filter.type = 'bandpass';
+            filter.frequency.value = 1000;
+            filter.Q.value = 20;
+            
+            gain.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
+            
+            osc.start(audioContext.currentTime);
+            osc.stop(audioContext.currentTime + 0.05);
+        }
+
+        // Raindrop pop
+        function playPop() {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            const filter = audioContext.createBiquadFilter();
+            
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioContext.destination);
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(1800, audioContext.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.08);
+            
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(3000, audioContext.currentTime);
+            filter.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.08);
+            filter.Q.value = 8;
+            
+            gain.gain.setValueAtTime(0.4, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.12);
+            
+            osc.start(audioContext.currentTime);
+            osc.stop(audioContext.currentTime + 0.12);
+        }
+
+        // Gentle breeze whoosh
+        function playWhoosh() {
+            const bufferSize = audioContext.sampleRate * 0.3;
+            const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            
+            const noise = audioContext.createBufferSource();
+            const filter = audioContext.createBiquadFilter();
+            const gain = audioContext.createGain();
+            
+            noise.buffer = buffer;
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioContext.destination);
+            
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(2000, audioContext.currentTime);
+            filter.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.3);
+            filter.Q.value = 2;
+            
+            gain.gain.setValueAtTime(0.15, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            
+            noise.start(audioContext.currentTime);
+            noise.stop(audioContext.currentTime + 0.3);
+        }
+    </script>
+</body>
+</html>

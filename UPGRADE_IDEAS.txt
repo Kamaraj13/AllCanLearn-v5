@@ -1,0 +1,41 @@
+# AllCanLearn v3 - Enhancements Plan
+
+## Researched Professional Features (from Descript & Adobe Podcast)
+
+### 1. Wavesurfer.js - Visual Audio Waveforms
+- Shows waveform visualization
+- Click to jump to any point
+- Professional podcast look
+
+### 2. Playback Speed Controls  
+- 0.5x, 1x, 1.5x, 2x speed buttons
+- Easy to implement
+
+### 3. Download Episodes
+- Let users download audio + transcript
+- Export as JSON or ZIP
+
+### 4. Search & Filter
+- Search episodes by keyword
+- Sort by date or topic
+
+### 5. Progress Indicators
+- Show generation progress in real-time
+- Turn counter and time estimate
+
+## Quick Start
+
+```bash
+cd AllCanLearn-v3
+source ../CloudQuest-Game/venv/bin/activate  
+python3 -m uvicorn app.main:app --port 8001 --reload
+```
+
+Visit: http://localhost:8001
+
+## Next Steps
+
+Pick which features you want me to implement!
+I can add them one by one to AllCanLearn v3.
+
+

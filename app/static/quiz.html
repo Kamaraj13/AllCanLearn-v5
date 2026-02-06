@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 AllCanLearn Quiz - Learn Anything</title>
+    <link rel="icon" href="/static/assets/logo.jpg" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* Full-Page Animated Slideshow Background */
+        .slideshow-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            overflow: hidden;
+        }
+        
+        .slideshow-background img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            animation: slideshow 100s infinite;
+        }
+        
+        .slideshow-background img:nth-child(1) { animation-delay: 0s; }
+        .slideshow-background img:nth-child(2) { animation-delay: 5s; }
+        .slideshow-background img:nth-child(3) { animation-delay: 10s; }
+        .slideshow-background img:nth-child(4) { animation-delay: 15s; }
+        .slideshow-background img:nth-child(5) { animation-delay: 20s; }
+        .slideshow-background img:nth-child(6) { animation-delay: 25s; }
+        .slideshow-background img:nth-child(7) { animation-delay: 30s; }
+        .slideshow-background img:nth-child(8) { animation-delay: 35s; }
+        .slideshow-background img:nth-child(9) { animation-delay: 40s; }
+        .slideshow-background img:nth-child(10) { animation-delay: 45s; }
+        .slideshow-background img:nth-child(11) { animation-delay: 50s; }
+        .slideshow-background img:nth-child(12) { animation-delay: 55s; }
+        .slideshow-background img:nth-child(13) { animation-delay: 60s; }
+        .slideshow-background img:nth-child(14) { animation-delay: 65s; }
+        .slideshow-background img:nth-child(15) { animation-delay: 70s; }
+        .slideshow-background img:nth-child(16) { animation-delay: 75s; }
+        .slideshow-background img:nth-child(17) { animation-delay: 80s; }
+        .slideshow-background img:nth-child(18) { animation-delay: 85s; }
+        .slideshow-background img:nth-child(19) { animation-delay: 90s; }
+        .slideshow-background img:nth-child(20) { animation-delay: 95s; }
+        
+        @keyframes slideshow {
+            0% { opacity: 0; transform: scale(1); }
+            2% { opacity: 1; }
+            7% { opacity: 1; }
+            9% { opacity: 0; transform: scale(1.1); }
+            100% { opacity: 0; }
+        }
+        
+        /* Glassmorphism Overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 14, 39, 0.35);
+            backdrop-filter: blur(3px);
+            z-index: -1;
+            transition: background 0.5s;
+        }
+        
+        body.bright-mode::before {
+            background: rgba(255, 245, 200, 0.45);
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: color 0.5s;
+        }
+        
+        body.bright-mode {
+            color: #1a1f3a;
+        }
+        
+        .container { 
+            max-width: 900px; 
+            margin: 0 auto; 
+            padding: 3rem 2rem;
+        }
+        
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 0.6s;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        body.bright-mode .header h1 {
+            background: linear-gradient(135deg, #4c63d2 0%, #5a3a7a 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        /* Cards */
+        .card {
+            background: rgba(26, 31, 58, 0.7);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+            animation: fadeInUp 0.6s;
+        }
+        
+        body.bright-mode .card {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: rgba(0, 0, 0, 0.15);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+        
+        .card h2 {
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+        
+        /* Form Controls */
+        input, select { 
+            width: 100%; 
+            padding: 1.2rem; 
+            border-radius: 12px; 
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            font-size: 1.05rem;
+            margin: 1rem 0;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s;
+        }
+        
+        body.bright-mode input,
+        body.bright-mode select {
+            background: rgba(255, 255, 255, 0.9);
+            color: #1a1f3a;
+            border-color: rgba(0, 0, 0, 0.2);
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+        }
+        
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        body.bright-mode input::placeholder {
+            color: rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Buttons */
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1.2rem 2.5rem;
+            border-radius: 12px;
+            font-size: 1.15rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: none;
+        }
+        
+        body.bright-mode .btn-outline {
+            border-color: rgba(0, 0, 0, 0.3);
+            color: #1a1f3a;
+        }
+        
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #667eea;
+        }
+        
+        /* Quiz Options */
+        .option {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        body.bright-mode .option {
+            background: rgba(255, 255, 255, 0.6);
+            border-color: rgba(0, 0, 0, 0.2);
+        }
+        
+        .option:hover { 
+            background: rgba(102, 126, 234, 0.3);
+            border-color: #667eea;
+            transform: translateX(8px);
+        }
+        
+        .option.selected {
+            background: rgba(102, 126, 234, 0.5);
+            border-color: #667eea;
+        }
+        
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            background: rgba(26, 31, 58, 0.7);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            z-index: 100;
+        }
+        
+        body.bright-mode .theme-toggle {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: rgba(0, 0, 0, 0.15);
+        }
+        
+        .theme-toggle:hover {
+            transform: scale(1.05);
+            border-color: #0ea5e9;
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Results */
+        .results-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin: 0.5rem;
+        }
+        
+        .score-display {
+            font-size: 5rem;
+            font-weight: 900;
+            margin: 2rem 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+            
+            .theme-toggle {
+                bottom: 1rem;
+                right: 1rem;
+            }
+        }
+        
+        /* Additional Quiz Styles */
+        .option-letter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            margin-right: 1rem;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .option.correct {
+            background: rgba(67, 233, 123, 0.2) !important;
+            border-color: #43e97b !important;
+        }
+        
+        .option.incorrect {
+            background: rgba(255, 82, 82, 0.2) !important;
+            border-color: #ff5252 !important;
+        }
+        
+        .feedback-correct, .feedback-incorrect {
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 16px;
+            animation: fadeInUp 0.5s;
+        }
+        
+        .feedback-correct {
+            background: rgba(67, 233, 123, 0.2);
+            border: 2px solid #43e97b;
+            color: #43e97b;
+        }
+        
+        .feedback-incorrect {
+            background: rgba(255, 82, 82, 0.2);
+            border: 2px solid #ff5252;
+            color: #ff5252;
+        }
+        
+        body.bright-mode .feedback-correct {
+            background: rgba(67, 233, 123, 0.3);
+            color: #2d8a4e;
+        }
+        
+        body.bright-mode .feedback-incorrect {
+            background: rgba(255, 82, 82, 0.3);
+            color: #c41e3a;
+        }
+        
+        .quiz-progress {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding: 0.75rem;
+            background: rgba(102, 126, 234, 0.15);
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .score-badge {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 24px;
+            margin: 2rem 0;
+        }
+        
+        .results-container {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Full-Page Animated Slideshow Background -->
+    <div class="slideshow-background">
+        <img src="/static/assets/bg-frame-1.jpg" alt="Background 1">
+        <img src="/static/assets/bg-frame-2.jpg" alt="Background 2">
+        <img src="/static/assets/bg-frame-3.jpg" alt="Background 3">
+        <img src="/static/assets/bg-frame-4.jpg" alt="Background 4">
+        <img src="/static/assets/download-2026-01-30T20:47:19-1.jpg" alt="Background 5">
+        <img src="/static/assets/download-2026-01-30T20:47:19-2.jpg" alt="Background 6">
+        <img src="/static/assets/download-2026-01-30T20:47:19-3.jpg" alt="Background 7">
+        <img src="/static/assets/download-2026-01-30T20:47:19-4.jpg" alt="Background 8">
+        <img src="/static/assets/download-2026-01-30T20:50:02-1.jpg" alt="Background 9">
+        <img src="/static/assets/download-2026-01-30T20:50:02-2.jpg" alt="Background 10">
+        <img src="/static/assets/download-2026-01-30T20:50:02-3.jpg" alt="Background 11">
+        <img src="/static/assets/download-2026-01-30T20:50:02-4.jpg" alt="Background 12">
+        <img src="/static/assets/download-2026-01-30T20:51:00-1.jpg" alt="Background 13">
+        <img src="/static/assets/download-2026-01-30T20:51:00-2.jpg" alt="Background 14">
+        <img src="/static/assets/download-2026-01-30T20:51:00-3.jpg" alt="Background 15">
+        <img src="/static/assets/download-2026-01-30T20:51:00-4.jpg" alt="Background 16">
+        <img src="/static/assets/download-2026-01-30T20:51:31-1.jpg" alt="Background 17">
+        <img src="/static/assets/download-2026-01-30T20:51:31-2.jpg" alt="Background 18">
+        <img src="/static/assets/download-2026-01-30T20:51:31-3.jpg" alt="Background 19">
+        <img src="/static/assets/download-2026-01-30T20:51:31-4.jpg" alt="Background 20">
+    </div>
+
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" onclick="toggleTheme()">
+        <span id="theme-icon">🌙</span> <span id="theme-text">Dark Mode</span>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🎮 AllCanLearn Quiz</h1>
+            <p>Master any subject through AI-powered quizzes</p>
+            <button class="btn btn-outline" onclick="window.location.href='/ui'" style="max-width: 250px; margin: 1.5rem auto;">
+                ← Back to Podcasts
+            </button>
+        </div>
+
+        <div class="card" id="quiz-creator">
+            <h2>🎯 Create Your Quiz</h2>
+            <p style="margin-bottom: 2rem; opacity: 0.9;">Choose your topic and difficulty to begin learning</p>
+            
+            <div class="form-group">
+                <label for="topic">📚 Topic</label>
+                <input type="text" id="topic" placeholder="Enter any topic (e.g., Space, AI, Football, History)">
+            </div>
+            
+            <div class="form-group">
+                <label for="difficulty">⚡ Difficulty Level</label>
+                <select id="difficulty">
+                    <option value="easy">🌱 Easy - Beginner Friendly</option>
+                    <option value="medium" selected>🔥 Medium - Intermediate</option>
+                    <option value="hard">💎 Hard - Expert Level</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="num_questions">🎲 Number of Questions</label>
+                <select id="num_questions">
+                    <option value="5" selected>5 Questions - Quick Practice</option>
+                    <option value="10">10 Questions - Standard</option>
+                    <option value="15">15 Questions - Deep Dive</option>
+                </select>
+            </div>
+
+            <button class="btn btn-primary" onclick="generateQuiz()">
+                <span>✨ Generate Quiz</span>
+            </button>
+        </div>
+
+        <div class="card" id="quiz-game" style="display: none;">
+            <div class="quiz-progress" id="quiz-progress"></div>
+            <h2 id="question-text" style="font-size: 1.5rem; margin-bottom: 2rem;"></h2>
+            <div id="options" class="options-grid"></div>
+            <button class="btn btn-primary" onclick="nextQuestion()" id="next-btn" style="margin-top: 2rem;">
+                Next Question →
+            </button>
+        </div>
+
+        <div class="card" id="results" style="display: none;">
+            <div class="results-container">
+                <h2>🎉 Quiz Complete!</h2>
+                <div class="score-badge">
+                    <h1 id="score-text" style="font-size: 4rem; margin: 1rem 0;"></h1>
+                    <p id="points-text" style="font-size: 1.3rem; opacity: 0.9;"></p>
+                </div>
+                <button class="btn btn-primary" onclick="location.reload()" style="margin-top: 2rem;">
+                    🔄 Take Another Quiz
+                </button>
+                <button class="btn btn-outline" onclick="window.location.href='/ui'" style="margin-top: 1rem;">
+                    🎧 Back to Podcasts
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme Toggle
+        function toggleTheme() {
+            document.body.classList.toggle('bright-mode');
+            const isBright = document.body.classList.contains('bright-mode');
+            document.getElementById('theme-icon').textContent = isBright ? '☀️' : '🌙';
+            document.getElementById('theme-text').textContent = isBright ? 'Bright Mode' : 'Dark Mode';
+            localStorage.setItem('theme', isBright ? 'bright' : 'dark');
+        }
+
+        // Load saved theme
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'bright') {
+                document.body.classList.add('bright-mode');
+                document.getElementById('theme-icon').textContent = '☀️';
+                document.getElementById('theme-text').textContent = 'Bright Mode';
+            }
+        });
+
+        let currentQuiz = null;
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answers = [];
+
+        async function generateQuiz() {
+            const topic = document.getElementById('topic').value;
+            if (!topic) { 
+                alert('⚠️ Please enter a topic first!'); 
+                return; 
+            }
+
+            const difficulty = document.getElementById('difficulty').value;
+            const num_questions = document.getElementById('num_questions').value;
+
+            const creatorDiv = document.getElementById('quiz-creator');
+            creatorDiv.innerHTML = `
+                <div class="loading-spinner"></div>
+                <h2 style="margin-top: 2rem;">🤖 Generating your quiz...</h2>
+                <p style="opacity: 0.8;">Creating ${num_questions} ${difficulty} questions about ${topic}</p>
+            `;
+
+            try {
+                const response = await fetch('/api/quiz/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ topic, difficulty, num_questions: parseInt(num_questions) })
+                });
+
+                currentQuiz = await response.json();
+                currentQuestionIndex = 0;
+                score = 0;
+                answers = [];
+                
+                creatorDiv.style.display = 'none';
+                document.getElementById('quiz-game').style.display = 'block';
+                showQuestion();
+            } catch (e) {
+                alert('❌ Error generating quiz: ' + e.message);
+                location.reload();
+            }
+        }
+
+        function showQuestion() {
+            const q = currentQuiz.questions[currentQuestionIndex];
+            const total = currentQuiz.questions.length;
+            
+            // Update progress indicator
+            document.getElementById('quiz-progress').innerHTML = `
+                <span style="opacity: 0.7;">Question ${currentQuestionIndex + 1} of ${total}</span>
+            `;
+            
+            // Update question text
+            document.getElementById('question-text').innerHTML = `
+                <span style="color: #667eea; font-weight: bold;">Q${currentQuestionIndex + 1}.</span> ${q.question}
+            `;
+            
+            // Render options
+            const optionsDiv = document.getElementById('options');
+            optionsDiv.innerHTML = '';
+            
+            q.options.forEach((opt, idx) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.innerHTML = `
+                    <span class="option-letter">${String.fromCharCode(65 + idx)}</span>
+                    <span>${opt}</span>
+                `;
+                div.onclick = () => selectAnswer(idx);
+                optionsDiv.appendChild(div);
+            });
+            
+            // Disable next button until answer selected
+            document.getElementById('next-btn').disabled = answers.length <= currentQuestionIndex;
+        }
+
+        function selectAnswer(idx) {
+            // Prevent selecting if already answered
+            if (answers.length > currentQuestionIndex) return;
+            
+            const q = currentQuiz.questions[currentQuestionIndex];
+            const isCorrect = idx === q.correct_answer;
+            const options = document.querySelectorAll('.option');
+            
+            // Disable all options
+            options.forEach((opt, i) => {
+                opt.style.pointerEvents = 'none';
+                if (i === q.correct_answer) {
+                    opt.classList.add('correct');
+                } else if (i === idx && !isCorrect) {
+                    opt.classList.add('incorrect');
+                }
+            });
+            
+            if (isCorrect) {
+                score++;
+                // Show success feedback
+                setTimeout(() => {
+                    const feedback = document.createElement('div');
+                    feedback.className = 'feedback-correct';
+                    feedback.innerHTML = '✅ Correct! ' + (q.explanation || '');
+                    document.getElementById('options').after(feedback);
+                }, 300);
+            } else {
+                // Show error feedback
+                setTimeout(() => {
+                    const feedback = document.createElement('div');
+                    feedback.className = 'feedback-incorrect';
+                    feedback.innerHTML = `❌ Incorrect. The correct answer is: <strong>${q.options[q.correct_answer]}</strong><br>${q.explanation || ''}`;
+                    document.getElementById('options').after(feedback);
+                }, 300);
+            }
+            
+            answers.push({ selected: idx, correct: q.correct_answer, isCorrect });
+            
+            // Enable next button
+            document.getElementById('next-btn').disabled = false;
+        }
+
+        function nextQuestion() {
+            if (answers.length <= currentQuestionIndex) {
+                alert('⚠️ Please select an answer first!');
+                return;
+            }
+
+            // Remove feedback messages
+            const feedbacks = document.querySelectorAll('.feedback-correct, .feedback-incorrect');
+            feedbacks.forEach(f => f.remove());
+
+            currentQuestionIndex++;
+            if (currentQuestionIndex < currentQuiz.questions.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quiz-game').style.display = 'none';
+            document.getElementById('results').style.display = 'block';
+            
+            const total = currentQuiz.questions.length;
+            const percentage = Math.round((score / total) * 100);
+            const points = score * 20;
+            
+            // Performance message
+            let message = '';
+            let emoji = '';
+            if (percentage === 100) {
+                message = 'Perfect Score! 🌟';
+                emoji = '🏆';
+            } else if (percentage >= 80) {
+                message = 'Excellent Work! 💪';
+                emoji = '🎯';
+            } else if (percentage >= 60) {
+                message = 'Good Job! 👍';
+                emoji = '✨';
+            } else {
+                message = 'Keep Practicing! 📚';
+                emoji = '💡';
+            }
+
+            document.getElementById('score-text').innerHTML = `
+                <div style="font-size: 5rem; margin-bottom: 1rem;">${emoji}</div>
+                ${score}/${total}
+                <div style="font-size: 1.5rem; opacity: 0.8; margin-top: 0.5rem;">${percentage}%</div>
+            `;
+            
+            document.getElementById('points-text').innerHTML = `
+                <div style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem;">${message}</div>
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+                            font-size: 2rem; font-weight: bold;">
+                    +${points} Points Earned!
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
