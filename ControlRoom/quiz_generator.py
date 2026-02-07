@@ -1,6 +1,6 @@
 # quiz_generator.py - Generate quiz questions for any topic using Groq
 
-from app.groq_client import call_groq
+from Newsroom.groq_client import call_groq
 import json
 import re
 

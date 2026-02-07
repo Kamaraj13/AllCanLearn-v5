@@ -12,11 +12,11 @@ from dotenv import load_dotenv
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import WebSocket, WebSocketDisconnect
 from datetime import datetime
-from app.moderator import run_roundtable
-from app.episodes import get_audio_files, add_episode, get_all_episodes
-from app.cleanup import cleanup_old_audio_files
-from app.quiz_generator import generate_quiz_questions, generate_topic_description
-from app.chat import manager
+from .moderator import run_roundtable
+from .episodes import get_audio_files, add_episode, get_all_episodes
+from .cleanup import cleanup_old_audio_files
+from .quiz_generator import generate_quiz_questions, generate_topic_description
+from .chat import manager
 
 load_dotenv()
 
@@ -46,7 +46,7 @@ os.makedirs("tts_output", exist_ok=True)
 os.makedirs("episodes_data", exist_ok=True)
 
 # Mount static files
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
+app.mount("/static", StaticFiles(directory="TheStage/build/static"), name="static")
 app.mount("/tts_output", StaticFiles(directory="tts_output"), name="tts_output")
 
 # API Routes - Define these BEFORE the catch-all
@@ -96,7 +96,7 @@ async def generate(tts: bool = True, topic: str = "government_jobs", essential: 
 @app.get("/api/episodes/{episode_id}")
 def get_episode_by_id(episode_id: str):
     """Get a specific episode by ID"""
-    from app.episodes import get_episode as get_episode_data
+    from .episodes import get_episode as get_episode_data
     episode = get_episode_data(episode_id)
     if not episode:
         raise HTTPException(status_code=404, detail="Episode not found")
@@ -106,11 +106,11 @@ def get_episode_by_id(episode_id: str):
 # Serve React app
 @app.get("/")
 async def read_index():
-    return FileResponse('app/static/index.html')
+    return FileResponse('TheStage/build/index.html')
 
 @app.get("/static/{file_path:path}")
 async def read_static(file_path: str):
-    return FileResponse(f'app/static/{file_path}')
+    return FileResponse(f'TheStage/build/static/{file_path}')
 
 # Fallback for React Router - Must be LAST
 @app.get("/{full_path:path}")
@@ -119,7 +119,7 @@ async def catch_all(full_path: str):
     if full_path.startswith('api/') or full_path.startswith('static/') or full_path.startswith('tts_output/') or full_path == 'quiz':
         raise HTTPException(status_code=404, detail="Not found")
     # Otherwise serve React app
-    return FileResponse('app/static/index.html')
+    return FileResponse('TheStage/build/index.html')
 
 
 @app.get("/api/episodes")
@@ -134,7 +134,7 @@ def get_episodes():
 @app.get("/api/episodes/{episode_id}")
 def get_episode_details(episode_id: str):
     """Get full episode with all turns and audio"""
-    from app.episodes import get_episode
+    from .episodes import get_episode
     episode = get_episode(episode_id)
     if not episode:
         raise HTTPException(status_code=404, detail="Episode not found")
@@ -149,13 +149,13 @@ def get_audio_files_list():
 @app.get("/ui")
 def serve_ui():
     """Serve the web UI"""
-    return FileResponse("app/static/index.html", media_type="text/html")
+    return FileResponse("TheStage/build/index.html", media_type="text/html")
 
 
 @app.get("/quiz")
 def serve_quiz():
     """Serve the quiz UI"""
-    return FileResponse("app/static/quiz.html", media_type="text/html")
+    return FileResponse("TheStage/build/index.html", media_type="text/html")
 
 
 # ==================== QUIZ ENDPOINTS ====================

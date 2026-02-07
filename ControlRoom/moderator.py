@@ -3,13 +3,21 @@
 import asyncio
 import json
 import re
-from app.groq_client import call_groq
-from app.characters import CHARACTERS
-from app.travel_characters import TRAVEL_CHARACTERS, CITIES
-from app.tech_startup_characters import TECH_STARTUP_CHARACTERS
-from app.personal_finance_characters import PERSONAL_FINANCE_CHARACTERS
-from app.mental_health_characters import MENTAL_HEALTH_CHARACTERS
-from app.tts_client import speak_text  # Back to original working TTS
+import sys
+import os
+
+# Add SoundBooth and Newsroom to path for proper imports
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'SoundBooth'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'Newsroom'))
+
+from Newsroom.groq_client import call_groq
+from .characters import CHARACTERS
+from .travel_characters import TRAVEL_CHARACTERS, CITIES
+from .tech_startup_characters import TECH_STARTUP_CHARACTERS
+from .personal_finance_characters import PERSONAL_FINANCE_CHARACTERS
+from .mental_health_characters import MENTAL_HEALTH_CHARACTERS
+from SoundBooth.tts_client import speak_text  # Piper TTS from SoundBooth
+from SoundBooth.character_voices import get_voice_for_character
 
 MAX_TURNS = 8  # Increased for better quality discussions
 MAX_ESSENTIAL_TURNS = 20  # Extended Essential Topics for deeper content
