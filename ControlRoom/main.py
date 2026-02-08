@@ -45,8 +45,7 @@ logger = logging.getLogger(__name__)
 os.makedirs("tts_output", exist_ok=True)
 os.makedirs("episodes_data", exist_ok=True)
 
-# Mount static files
-app.mount("/static", StaticFiles(directory="TheStage/build/static"), name="static")
+# Mount TTS output directory for audio files
 app.mount("/tts_output", StaticFiles(directory="tts_output"), name="tts_output")
 
 # API Routes - Define these BEFORE the catch-all
@@ -103,34 +102,51 @@ def get_episode_by_id(episode_id: str):
     return episode
 
 
-# Serve React app
-@app.get("/")
-async def read_index():
-    return FileResponse('TheStage/build/index.html')
-
-@app.get("/static/{file_path:path}")
-async def read_static(file_path: str):
-    return FileResponse(f'TheStage/build/static/{file_path}')
-
-# Fallback for React Router - Must be LAST
-@app.get("/{full_path:path}")
-async def catch_all(full_path: str):
-    # Don't intercept API routes, static files, tts_output, or quiz
-    if full_path.startswith('api/') or full_path.startswith('static/') or full_path.startswith('tts_output/') or full_path == 'quiz':
-        raise HTTPException(status_code=404, detail="Not found")
-    # Otherwise serve React app
-    return FileResponse('TheStage/build/index.html')
-
-
+# API Routes - Define these BEFORE catch-all
 @app.get("/api/episodes")
 def get_episodes():
     """Get all episodes - client-side caches for 5 minutes"""
     episodes = get_all_episodes()
     return {"episodes": episodes}
 
+@app.post("/generate")
+async def generate(tts: bool = True, topic: str = "government_jobs", essential: bool = False):
+    """
+    Generate a roundtable episode.
+    
+    Args:
+        tts: Enable text-to-speech (default: True)
+        topic: Topic - can be predefined types or any custom topic string
+        essential: Whether this is an Essential Topic (default: False)
+    """
+    try:
+        logger.info(f"Generating episode: topic={topic}, tts={tts}, essential={essential}")
+        
+        # Check if it's a predefined topic type or custom topic
+        predefined_topics = ["government_jobs", "travel", "tech_startup", "personal_finance", "mental_health"]
+        essential_topics = ["Climate Change and Environmental Sustainability", "Artificial Intelligence and the Future of Technology", "Global Economy and Financial Markets", "Mental Health and Wellness in Modern Society", "Space Exploration and Scientific Discoveries", "Renewable Energy and Sustainable Living", "Social Media Impact on Society and Communication", "Global Health and Pandemic Preparedness", "Education Systems and Learning in the Digital Age", "Human Rights and Social Justice Worldwide"]
+        
+        if essential or topic in essential_topics:
+            # Essential Topic generation
+            episode = await run_roundtable(tts_enabled=tts, topic_type="essential", custom_topic=topic)
+        elif topic in predefined_topics:
+            episode = await run_roundtable(tts_enabled=tts, topic_type=topic)
+        else:
+            # Treat as custom topic
+            episode = await run_roundtable(tts_enabled=tts, topic_type="custom", custom_topic=topic)
+        
+        # Store episode metadata
+        episode_id = add_episode(episode["topic"], episode["turns"])
+        logger.info(f"Episode created: {episode_id} - {episode['topic']}")
+        
+        return episode
+    except Exception as e:
+        logger.error(f"Error generating episode: {str(e)}", exc_info=True)
+        raise
 
-
-
+@app.get("/api/episodes/{episode_id}")
+def get_episode_by_id(episode_id: str):
+    """Get a specific episode by ID"""
 @app.get("/api/episodes/{episode_id}")
 def get_episode_details(episode_id: str):
     """Get full episode with all turns and audio"""
@@ -313,45 +329,12 @@ def get_leaderboard():
 
 
 # ============= CHAT WEBSOCKET =============
-
-@app.websocket("/ws/chat")
-async def websocket_chat(websocket: WebSocket, username: str = "Anonymous"):
-    """WebSocket endpoint for real-time chat"""
-    await manager.connect(websocket, username)
-    
-    await manager.send_personal_message({
-        "type": "online_users",
-        "users": manager.get_online_users(),
-        "count": len(manager.active_connections)
-    }, websocket)
-    
-    try:
-        while True:
-            data = await websocket.receive_text()
-            message = {
-                "type": "message",
-                "username": username,
-                "message": data,
-                "timestamp": datetime.now().isoformat()
-            }
-            manager.add_to_history(message)
-            await manager.broadcast(message)
-            
-    except WebSocketDisconnect:
-        username = manager.disconnect(websocket)
-        if username:
-            await manager.broadcast({
-                "type": "system",
-                "message": f"{username} left the chat",
-                "timestamp": datetime.now().isoformat(),
-                "online_count": len(manager.active_connections)
-            })
-
+# WebSocket temporarily disabled for stability
 
 @app.get("/api/chat/online")
 def get_online_users():
     """Get currently online users"""
     return {
-        "users": manager.get_online_users(),
-        "count": len(manager.active_connections)
+        "users": [],
+        "count": 0
     }

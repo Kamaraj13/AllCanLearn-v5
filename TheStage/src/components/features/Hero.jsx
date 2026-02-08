@@ -1,5 +1,6 @@
 import React from 'react';
 import { Play, Radio, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import Button from '../ui/Button';
 
 const Hero = () => {
@@ -43,14 +44,16 @@ const Hero = () => {
               Start Listening
             </Button>
             
-            <Button 
-              variant="outline" 
-              size="lg"
-              className="border-gray-600 text-white hover:bg-white/10 font-semibold px-8 py-4 flex items-center gap-2"
-            >
-              <Sparkles className="w-5 h-5" />
-              Create Episode
-            </Button>
+            <Link to="/create">
+              <Button 
+                variant="outline" 
+                size="lg"
+                className="border-gray-600 text-white hover:bg-white/10 font-semibold px-8 py-4 flex items-center gap-2"
+              >
+                <Sparkles className="w-5 h-5" />
+                Create Episode
+              </Button>
+            </Link>
           </div>
         </div>
         
