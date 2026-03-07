@@ -1,5 +1,9 @@
 # quiz_generator.py - Generate quiz questions for any topic using Groq
 
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from Newsroom.groq_client import call_groq
 import json
 import re

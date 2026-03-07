@@ -40,93 +40,91 @@ def speak_text(text: str, voice: Optional[str] = None, output_file: Optional[str
             # Try alternative paths
             alt_paths = [
                 f"./piper_models/{voice}.onnx",
-                f"piper_models/{voice}.onnx"
+                f"~/.local/share/piper_tts/{voice}.onnx"
             ]
-            for path in alt_paths:
-                if os.path.exists(path):
-                    model_path = path
+            for alt_path in alt_paths:
+                if os.path.exists(alt_path):
+                    model_path = alt_path
                     break
             else:
-                logger.warning(f"Voice model not found: {voice}")
-                # Fallback to basic TTS using system say (macOS) or espeak (Linux)
+                logger.warning(f"Voice model {voice} not found, using fallback")
                 return fallback_tts(text, output_file)
         
-        # Generate WAV file with Piper
-        wav_file = output_file.replace('.mp3', '.wav')
+        # Use Piper TTS
+        cmd = [
+            "piper-tts",
+            "--model", model_path,
+            "--output_file", output_file
+        ]
+        
+        # Write text to temporary file
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+            f.write(text)
+            temp_text_file = f.name
+        
         try:
-            cmd = [
-                'piper',
-                '--model', model_path,
-                '--output_file', wav_file
-            ]
+            # Run Piper TTS
+            with open(temp_text_file, 'r') as f:
+                result = subprocess.run(
+                    cmd,
+                    stdin=f,
+                    capture_output=True,
+                    text=True
+                )
             
-            # Add text input
-            process = subprocess.Popen(
-                cmd,
-                stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True
-            )
-            
-            stdout, stderr = process.communicate(input=text)
-            
-            if process.returncode != 0:
-                logger.error(f"Piper TTS error: {stderr}")
+            if result.returncode == 0 and os.path.exists(output_file):
+                logger.info(f"TTS generated: {output_file}")
+                return output_file
+            else:
+                logger.warning(f"Piper TTS failed: {result.stderr}")
                 return fallback_tts(text, output_file)
-            
-            # Convert WAV to MP3 using ffmpeg
-            subprocess.run([
-                'ffmpeg', '-y', '-i', wav_file,
-                '-codec:a', 'libmp3lame', '-qscale:a', '2',
-                output_file
-            ], check=True, capture_output=True)
-            
-            # Clean up WAV file
-            os.remove(wav_file)
-            
-            logger.info(f"TTS generated: {output_file}")
-            return output_file
-            
-        except Exception as e:
-            logger.error(f"Piper TTS failed: {e}")
-            return fallback_tts(text, output_file)
+        finally:
+            os.unlink(temp_text_file)
             
     except Exception as e:
-        logger.error(f"TTS generation failed: {e}")
+        logger.error(f"TTS error: {e}")
         return fallback_tts(text, output_file)
 
 def fallback_tts(text: str, output_file: str) -> str:
-    """Fallback TTS using system tools"""
+    """Fallback TTS using system TTS"""
     try:
-        if os.system('which say > /dev/null 2>&1') == 0:
-            # macOS
-            subprocess.run(['say', '-o', output_file.replace('.mp3', '.aiff'), text], check=True)
-            subprocess.run([
-                'ffmpeg', '-y', '-i', output_file.replace('.mp3', '.aiff'),
-                '-codec:a', 'libmp3lame', '-qscale:a', '2',
-                output_file
-            ], check=True, capture_output=True)
+        if os.name == 'posix':  # macOS/Linux
+            # Use system say/espeak
+            temp_wav = output_file.replace('.mp3', '.wav')
+            
+            if os.system('which say > /dev/null 2>&1') == 0:  # macOS
+                os.system(f'say -o "{temp_wav}" "{text}"')
+            elif os.system('which espeak-ng > /dev/null 2>&1') == 0:  # Linux
+                os.system(f'espeak-ng -w "{temp_wav}" "{text}"')
+            else:
+                raise Exception("No TTS available")
+            
+            # Convert to MP3 if ffmpeg available
+            if os.system('which ffmpeg > /dev/null 2>&1') == 0:
+                os.system(f'ffmpeg -i "{temp_wav}" -y "{output_file}" 2>/dev/null')
+                os.unlink(temp_wav)
+            else:
+                # Keep WAV if no ffmpeg
+                output_file = temp_wav
+                
+            return output_file
         else:
-            # Linux espeak-ng
-            subprocess.run([
-                'espeak-ng', '-w', output_file.replace('.mp3', '.wav'), text
-            ], check=True)
-            subprocess.run([
-                'ffmpeg', '-y', '-i', output_file.replace('.mp3', '.wav'),
-                '-codec:a', 'libmp3lame', '-qscale:a', '2',
-                output_file
-            ], check=True, capture_output=True)
-        
-        return output_file
+            raise Exception("Unsupported OS")
+            
     except Exception as e:
         logger.error(f"Fallback TTS failed: {e}")
-        return output_file  # Return path even if generation failed
+        # Create empty file as last resort
+        with open(output_file, 'w') as f:
+            f.write("")
+        return output_file
 
 def check_piper_installation():
     """Check if Piper TTS is installed"""
-    try:
-        result = subprocess.run(['piper', '--help'], capture_output=True, text=True)
-        return result.returncode == 0
-    except FileNotFoundError:
-        return False
+    return os.system('which piper-tts > /dev/null 2>&1') == 0
+
+def install_piper():
+    """Install Piper TTS (Linux only)"""
+    if os.name == 'posix':
+        os.system('pip install piper-tts')
+        return check_piper_installation()
+    return False

@@ -12,11 +12,15 @@ from dotenv import load_dotenv
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import WebSocket, WebSocketDisconnect
 from datetime import datetime
-from .moderator import run_roundtable
-from .episodes import get_audio_files, add_episode, get_all_episodes
-from .cleanup import cleanup_old_audio_files
-from .quiz_generator import generate_quiz_questions, generate_topic_description
-from .chat import manager
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+from moderator import run_roundtable
+from episodes import get_audio_files, add_episode, get_all_episodes
+from cleanup import cleanup_old_audio_files
+from quiz_generator import generate_quiz_questions, generate_topic_description
+from chat import manager
 
 load_dotenv()
 
@@ -45,8 +49,9 @@ logger = logging.getLogger(__name__)
 os.makedirs("tts_output", exist_ok=True)
 os.makedirs("episodes_data", exist_ok=True)
 
-# Mount TTS output directory for audio files
-app.mount("/tts_output", StaticFiles(directory="tts_output"), name="tts_output")
+# Mount static files
+app.mount("/static", StaticFiles(directory=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "TheStage/build/static")), name="static")
+app.mount("/tts_output", StaticFiles(directory=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tts_output")), name="tts_output")
 
 # API Routes - Define these BEFORE the catch-all
 @app.get("/api/episodes")
@@ -73,13 +78,13 @@ async def generate(tts: bool = True, topic: str = "government_jobs", essential: 
         predefined_topics = ["government_jobs", "travel", "tech_startup", "personal_finance", "mental_health"]
         essential_topics = ["Climate Change and Environmental Sustainability", "Artificial Intelligence and the Future of Technology", "Global Economy and Financial Markets", "Mental Health and Wellness in Modern Society", "Space Exploration and Scientific Discoveries", "Renewable Energy and Sustainable Living", "Social Media Impact on Society and Communication", "Global Health and Pandemic Preparedness", "Education Systems and Learning in the Digital Age", "Human Rights and Social Justice Worldwide"]
         
-        if essential or topic in essential_topics:
+        if essential:
             # Essential Topic generation
             episode = await run_roundtable(tts_enabled=tts, topic_type="essential", custom_topic=topic)
         elif topic in predefined_topics:
             episode = await run_roundtable(tts_enabled=tts, topic_type=topic)
         else:
-            # Treat as custom topic
+            # Treat as custom topic (even if it matches essential topics list)
             episode = await run_roundtable(tts_enabled=tts, topic_type="custom", custom_topic=topic)
         
         # Store episode metadata
@@ -95,62 +100,26 @@ async def generate(tts: bool = True, topic: str = "government_jobs", essential: 
 @app.get("/api/episodes/{episode_id}")
 def get_episode_by_id(episode_id: str):
     """Get a specific episode by ID"""
-    from .episodes import get_episode as get_episode_data
+    from app.episodes import get_episode as get_episode_data
     episode = get_episode_data(episode_id)
     if not episode:
         raise HTTPException(status_code=404, detail="Episode not found")
     return episode
 
 
-# API Routes - Define these BEFORE catch-all
-@app.get("/api/episodes")
-def get_episodes():
-    """Get all episodes - client-side caches for 5 minutes"""
-    episodes = get_all_episodes()
-    return {"episodes": episodes}
+# Serve React app
+@app.get("/")
+async def read_index():
+    return FileResponse(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "TheStage/build/index.html"))
 
-@app.post("/generate")
-async def generate(tts: bool = True, topic: str = "government_jobs", essential: bool = False):
-    """
-    Generate a roundtable episode.
-    
-    Args:
-        tts: Enable text-to-speech (default: True)
-        topic: Topic - can be predefined types or any custom topic string
-        essential: Whether this is an Essential Topic (default: False)
-    """
-    try:
-        logger.info(f"Generating episode: topic={topic}, tts={tts}, essential={essential}")
-        
-        # Check if it's a predefined topic type or custom topic
-        predefined_topics = ["government_jobs", "travel", "tech_startup", "personal_finance", "mental_health"]
-        essential_topics = ["Climate Change and Environmental Sustainability", "Artificial Intelligence and the Future of Technology", "Global Economy and Financial Markets", "Mental Health and Wellness in Modern Society", "Space Exploration and Scientific Discoveries", "Renewable Energy and Sustainable Living", "Social Media Impact on Society and Communication", "Global Health and Pandemic Preparedness", "Education Systems and Learning in the Digital Age", "Human Rights and Social Justice Worldwide"]
-        
-        if essential or topic in essential_topics:
-            # Essential Topic generation
-            episode = await run_roundtable(tts_enabled=tts, topic_type="essential", custom_topic=topic)
-        elif topic in predefined_topics:
-            episode = await run_roundtable(tts_enabled=tts, topic_type=topic)
-        else:
-            # Treat as custom topic
-            episode = await run_roundtable(tts_enabled=tts, topic_type="custom", custom_topic=topic)
-        
-        # Store episode metadata
-        episode_id = add_episode(episode["topic"], episode["turns"])
-        logger.info(f"Episode created: {episode_id} - {episode['topic']}")
-        
-        return episode
-    except Exception as e:
-        logger.error(f"Error generating episode: {str(e)}", exc_info=True)
-        raise
+@app.get("/static/{file_path:path}")
+async def read_static(file_path: str):
+    return FileResponse(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), f"TheStage/build/static/{file_path}"))
 
-@app.get("/api/episodes/{episode_id}")
-def get_episode_by_id(episode_id: str):
-    """Get a specific episode by ID"""
 @app.get("/api/episodes/{episode_id}")
 def get_episode_details(episode_id: str):
     """Get full episode with all turns and audio"""
-    from .episodes import get_episode
+    from episodes import get_episode
     episode = get_episode(episode_id)
     if not episode:
         raise HTTPException(status_code=404, detail="Episode not found")
@@ -165,13 +134,13 @@ def get_audio_files_list():
 @app.get("/ui")
 def serve_ui():
     """Serve the web UI"""
-    return FileResponse("TheStage/build/index.html", media_type="text/html")
+    return FileResponse(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "TheStage/build/index.html"), media_type="text/html")
 
 
 @app.get("/quiz")
 def serve_quiz():
     """Serve the quiz UI"""
-    return FileResponse("TheStage/build/index.html", media_type="text/html")
+    return FileResponse(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "TheStage/build/index.html"), media_type="text/html")
 
 
 # ==================== QUIZ ENDPOINTS ====================
@@ -329,12 +298,58 @@ def get_leaderboard():
 
 
 # ============= CHAT WEBSOCKET =============
-# WebSocket temporarily disabled for stability
+
+@app.websocket("/ws/chat")
+async def websocket_chat(websocket: WebSocket, username: str = "Anonymous"):
+    """WebSocket endpoint for real-time chat"""
+    await manager.connect(websocket, username)
+    
+    await manager.send_personal_message({
+        "type": "online_users",
+        "users": manager.get_online_users(),
+        "count": len(manager.active_connections)
+    }, websocket)
+    
+    try:
+        while True:
+            data = await websocket.receive_text()
+            message = {
+                "type": "message",
+                "username": username,
+                "message": data,
+                "timestamp": datetime.now().isoformat()
+            }
+            manager.add_to_history(message)
+            await manager.broadcast(message)
+            
+    except WebSocketDisconnect:
+        username = manager.disconnect(websocket)
+        if username:
+            await manager.broadcast({
+                "type": "system",
+                "message": f"{username} left the chat",
+                "timestamp": datetime.now().isoformat(),
+                "online_count": len(manager.active_connections)
+            })
+
 
 @app.get("/api/chat/online")
 def get_online_users():
     """Get currently online users"""
     return {
-        "users": [],
-        "count": 0
+        "users": manager.get_online_users(),
+        "count": len(manager.active_connections)
     }
+
+
+# Fallback for React Router - Must be LAST
+@app.get("/{full_path:path}")
+async def catch_all(full_path: str):
+    # Don't intercept API routes, static files, tts_output, or specific routes
+    if (full_path.startswith('api/') or 
+        full_path.startswith('static/') or 
+        full_path.startswith('tts_output/') or 
+        full_path in ['quiz', 'ui', 'docs', 'openapi.json']):
+        raise HTTPException(status_code=404, detail="Not found")
+    # Otherwise serve React app
+    return FileResponse(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "TheStage/build/index.html"))

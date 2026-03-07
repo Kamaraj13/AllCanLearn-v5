@@ -40,11 +40,4 @@ Thumbs.db
 # Keep empty directories
 !tts_output/.gitkeep
 !episodes_data/.gitkeep
-
-# HTML files (replaced by React)
-*.html
-TheStage/build/index.html
-ControlRoom/static/*.html
-
-# Node modules
 node_modules

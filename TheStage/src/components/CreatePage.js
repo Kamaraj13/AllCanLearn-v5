@@ -69,71 +69,99 @@ function CreatePage({ showPage, viewEpisode }) {
   };
 
   return (
-    <div className="page active">
-      <div className="header">
-        <h1>Create Custom Podcast</h1>
-        <p>Generate a podcast on any topic you want to learn about</p>
-      </div>
-      
-      <div style={{ maxWidth: '600px' }}>
-        <div style={{ marginTop: '20px' }}>
-          <label style={{ display: 'block', marginBottom: '10px', fontWeight: '600', fontSize: '1.1em' }}>
-            🎙️ What topic would you like to hear about?
-          </label>
-          <input 
-            type="text"
-            value={customTopic}
-            onChange={(e) => setCustomTopic(e.target.value)}
-            placeholder="e.g., 'The future of renewable energy', 'Ancient Roman history', 'How to invest in stocks'"
-            style={{
-              width: '100%',
-              padding: '14px 20px',
-              background: 'rgba(26, 31, 58, 0.7)',
-              backdropFilter: 'blur(20px)',
-              border: '2px solid rgba(14, 165, 233, 0.3)',
-              color: 'inherit',
-              fontSize: '1em',
-              borderRadius: '14px',
-              cursor: 'text',
-              fontWeight: '600',
-              transition: 'all 0.3s'
-            }}
-            onKeyPress={(e) => e.key === 'Enter' && generateNewPodcast()}
-          />
-          <div style={{ marginTop: '8px', fontSize: '0.9em', opacity: '0.7' }}>
-            💡 Be specific! The more detailed your topic, the better the podcast will be.
+    <div className="netflix-container">
+      {/* Header */}
+      <div className="netflix-header">
+        <div className="header-content">
+          <div className="logo-section">
+            <div className="logo">🎙️ AllCanLearn</div>
+            <div className="tagline">AI-Powered Learning</div>
+          </div>
+          <div className="header-actions">
+            <button 
+              className="create-btn"
+              onClick={() => window.location.hash = '#home'}
+            >
+              <span>←</span> Back to Library
+            </button>
           </div>
         </div>
-        
-        <div style={{ marginTop: '30px' }}>
-          <button 
-            className="btn" 
-            onClick={generateNewPodcast}
-            disabled={isGenerating || !customTopic.trim()}
-          >
-            <span>{generateText}</span>
-          </button>
-        </div>
-        
-        <div style={{ marginTop: '20px', padding: '20px', background: 'rgba(14, 165, 233, 0.1)', borderRadius: '12px', border: '1px solid rgba(14, 165, 233, 0.3)' }}>
-          <h4 style={{ marginBottom: '10px', color: '#0ea5e9' }}>📋 How it works:</h4>
-          <ul style={{ margin: 0, paddingLeft: '20px', lineHeight: '1.6' }}>
-            <li>Enter any topic you're interested in learning about</li>
-            <li>AI will generate a discussion with multiple expert perspectives</li>
-            <li>Your podcast will be saved for 3 days</li>
-            <li>Listen as many times as you want during that period</li>
-            <li>Episodes are automatically deleted after 3 days to save space</li>
-          </ul>
-        </div>
+      </div>
 
-        <div style={{ marginTop: '20px', padding: '20px', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
-          <h4 style={{ marginBottom: '10px', color: '#10b981' }}>💡 Pro Tips:</h4>
-          <ul style={{ margin: 0, paddingLeft: '20px', lineHeight: '1.6' }}>
-            <li><strong>Be specific:</strong> Instead of "science", try "quantum computing applications"</li>
-            <li><strong>Add context:</strong> "How blockchain is changing supply chain management"</li>
-            <li><strong>Ask questions:</strong> "Why do we dream and what do dreams mean?"</li>
-            <li><strong>Compare topics:</strong> "Traditional vs. online education pros and cons"</li>
-          </ul>
+      {/* Content */}
+      <div className="search-section">
+        <div className="section-header">
+          <h2>🎙️ Create Custom Podcast</h2>
+          <p>Generate a podcast on any topic you want to learn about</p>
+        </div>
+        
+        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+          <div style={{ marginTop: '30px' }}>
+            <label style={{ 
+              display: 'block', 
+              marginBottom: '15px', 
+              fontWeight: '600', 
+              fontSize: '1.2em',
+              color: 'inherit'
+            }}>
+              🎙️ What topic would you like to hear about?
+            </label>
+            <input 
+              type="text"
+              value={customTopic}
+              onChange={(e) => setCustomTopic(e.target.value)}
+              placeholder="e.g., 'The future of renewable energy', 'Ancient Roman history', 'How to invest in stocks'"
+              className="search-input"
+              style={{
+                width: '100%',
+                fontSize: '1.1em'
+              }}
+              onKeyPress={(e) => e.key === 'Enter' && generateNewPodcast()}
+              disabled={isGenerating}
+            />
+            <div style={{ marginTop: '10px', fontSize: '0.9em', opacity: '0.7' }}>
+              💡 Be specific! The more detailed your topic, the better the podcast will be.
+            </div>
+          </div>
+          
+          <div style={{ marginTop: '40px', textAlign: 'center' }}>
+            <button 
+              className="cta-button"
+              onClick={generateNewPodcast}
+              disabled={isGenerating}
+              style={{
+                fontSize: '1.2em',
+                padding: '18px 40px',
+                opacity: isGenerating ? 0.7 : 1,
+                cursor: isGenerating ? 'not-allowed' : 'pointer'
+              }}
+            >
+              {generateText}
+            </button>
+            
+            {isGenerating && (
+              <div style={{ marginTop: '20px' }}>
+                <div className="spinner" style={{ 
+                  width: '40px', 
+                  height: '40px',
+                  margin: '0 auto'
+                }}></div>
+                <p style={{ marginTop: '15px', opacity: '0.8' }}>
+                  Generating your AI podcast... This may take a minute.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Info Banner */}
+      <div className="info-banner">
+        <div className="banner-content">
+          <div className="banner-icon">ℹ️</div>
+          <div className="banner-text">
+            <strong>How it works:</strong> Our AI creates a multi-voice conversation about your topic with 4 different perspectives. Each podcast is unique and educational!
+          </div>
         </div>
       </div>
     </div>

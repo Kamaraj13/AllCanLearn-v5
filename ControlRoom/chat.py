@@ -1,82 +1,84 @@
-# chat.py - WebSocket chat manager for AllCanLearn Radio Station
+# chat.py - WebSocket connection manager for real-time chat
 
+from fastapi import WebSocket
 from typing import List, Dict
-import asyncio
-import json
 from datetime import datetime
+import json
 
 class ConnectionManager:
-    """WebSocket connection manager for real-time chat"""
-    
     def __init__(self):
-        self.active_connections: List[Dict] = []
-        self.chat_history: Dict[str, List[Dict]] = {}
+        self.active_connections: Dict[str, WebSocket] = {}
+        self.message_history: List[Dict] = []
         self.max_history = 100
-    
-    async def connect(self, websocket, room: str = "default"):
-        """Connect a new WebSocket client"""
-        connection_info = {
-            "websocket": websocket,
-            "room": room,
-            "connected_at": datetime.now()
-        }
-        self.active_connections.append(connection_info)
+
+    async def connect(self, websocket: WebSocket, username: str = "Anonymous"):
+        """Accept and store WebSocket connection"""
+        await websocket.accept()
+        self.active_connections[username] = websocket
         
-        # Initialize room history if needed
-        if room not in self.chat_history:
-            self.chat_history[room] = []
-        
-        return connection_info
-    
-    def disconnect(self, websocket):
-        """Disconnect a WebSocket client"""
-        self.active_connections = [
-            conn for conn in self.active_connections 
-            if conn["websocket"] != websocket
-        ]
-    
-    async def send_personal_message(self, message: str, websocket):
-        """Send message to specific client"""
-        try:
-            await websocket.send_text(message)
-        except:
-            # Connection closed
-            self.disconnect(websocket)
-    
-    async def broadcast(self, message: str, room: str = "default"):
-        """Broadcast message to all clients in a room"""
-        # Store in history
-        if room not in self.chat_history:
-            self.chat_history[room] = []
-        
-        chat_message = {
-            "message": message,
+        # Send welcome message
+        welcome_msg = {
+            "type": "system",
+            "message": f"{username} joined the chat",
             "timestamp": datetime.now().isoformat(),
-            "room": room
+            "online_count": len(self.active_connections)
         }
+        await self.broadcast(welcome_msg)
         
-        self.chat_history[room].append(chat_message)
+        # Send recent messages to new user
+        recent_messages = self.message_history[-50:] if len(self.message_history) > 50 else self.message_history
+        for msg in recent_messages:
+            await self.send_personal_message(msg, websocket)
+
+    def disconnect(self, websocket: WebSocket) -> str:
+        """Remove WebSocket connection and return username"""
+        username = None
+        for user, ws in self.active_connections.items():
+            if ws == websocket:
+                username = user
+                break
         
-        # Keep only last N messages
-        if len(self.chat_history[room]) > self.max_history:
-            self.chat_history[room] = self.chat_history[room][-self.max_history:]
+        if username and username in self.active_connections:
+            del self.active_connections[username]
         
-        # Broadcast to all connections in room
+        return username
+
+    async def send_personal_message(self, message: Dict, websocket: WebSocket):
+        """Send message to specific WebSocket"""
+        try:
+            await websocket.send_text(json.dumps(message))
+        except Exception as e:
+            print(f"Error sending personal message: {e}")
+
+    async def broadcast(self, message: Dict):
+        """Broadcast message to all connected clients"""
         disconnected = []
-        for conn in self.active_connections:
-            if conn["room"] == room:
-                try:
-                    await conn["websocket"].send_text(message)
-                except:
-                    disconnected.append(conn["websocket"])
         
-        # Clean up disconnected clients
-        for websocket in disconnected:
-            self.disconnect(websocket)
-    
-    def get_history(self, room: str = "default") -> List[Dict]:
-        """Get chat history for a room"""
-        return self.chat_history.get(room, [])
+        for username, websocket in self.active_connections.items():
+            try:
+                await websocket.send_text(json.dumps(message))
+            except Exception as e:
+                print(f"Error broadcasting to {username}: {e}")
+                disconnected.append(username)
+        
+        # Remove disconnected clients
+        for username in disconnected:
+            if username in self.active_connections:
+                del self.active_connections[username]
+
+    def add_to_history(self, message: Dict):
+        """Add message to history, maintaining max size"""
+        self.message_history.append(message)
+        if len(self.message_history) > self.max_history:
+            self.message_history = self.message_history[-self.max_history:]
+
+    def get_online_users(self) -> List[str]:
+        """Get list of online users"""
+        return list(self.active_connections.keys())
+
+    def get_connection_count(self) -> int:
+        """Get number of active connections"""
+        return len(self.active_connections)
 
 # Global manager instance
 manager = ConnectionManager()

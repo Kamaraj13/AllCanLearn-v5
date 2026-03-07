@@ -53,7 +53,7 @@ function App() {
   };
 
   return (
-    <div className={`app ${isBrightMode ? 'bright-mode' : ''}`}>
+    <div className={`netflix-container ${isBrightMode ? 'bright-mode' : ''}`}>
       {/* Animated Background */}
       <div className="slideshow-background">
         {[...Array(44)].map((_, i) => (
@@ -69,37 +69,51 @@ function App() {
         ))}
       </div>
 
-      {/* Sidebar */}
-      <Sidebar 
-        currentPage={currentPage}
-        showPage={showPage}
-        isBrightMode={isBrightMode}
-        soundEnabled={soundEnabled}
-        toggleTheme={toggleTheme}
-        toggleSound={toggleSound}
-      />
-
       {/* Main Content */}
-      <div className="content">
-        {currentPage === 'home' && (
-          <HomePage viewEpisode={viewEpisode} />
-        )}
-        {currentPage === 'create' && (
-          <CreatePage 
-            showPage={showPage}
-            viewEpisode={viewEpisode}
-          />
-        )}
-        {currentPage === 'detail' && (
-          <DetailPage 
-            episode={currentEpisode}
-            showPage={showPage}
-          />
-        )}
-      </div>
+      {currentPage === 'home' && (
+        <HomePage viewEpisode={viewEpisode} />
+      )}
+      {currentPage === 'create' && (
+        <CreatePage 
+          showPage={showPage}
+          viewEpisode={viewEpisode}
+        />
+      )}
+      {currentPage === 'detail' && (
+        <DetailPage 
+          episode={currentEpisode}
+          showPage={showPage}
+        />
+      )}
 
-      {/* Chat Panel */}
+      {/* Chat Panel - Floating */}
       <ChatPanel soundEnabled={soundEnabled} />
+
+      {/* Theme Toggle - Fixed Position */}
+      <div 
+        className="theme-toggle" 
+        onClick={toggleTheme}
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          left: '20px',
+          background: 'rgba(26, 31, 58, 0.7)',
+          backdropFilter: 'blur(20px)',
+          border: '2px solid rgba(255, 255, 255, 0.15)',
+          borderRadius: '12px',
+          padding: '14px',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          fontWeight: '600',
+          transition: 'all 0.3s',
+          zIndex: 1000
+        }}
+      >
+        <span>Theme</span>
+        <span className="theme-icon">{isBrightMode ? '☀️' : '🌙'}</span>
+      </div>
     </div>
   );
 }

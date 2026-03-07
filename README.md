@@ -1,69 +1,58 @@
-# AllCanLearn-v5
+# AI Roundtable
 
-Universal learning platform with AI-powered podcasts, quizzes, and real-time chat capabilities.
+An AI-powered panel discussion simulator that generates dynamic conversations on government jobs and exams in India using multiple distinct personas and text-to-speech synthesis.
 
 ## Overview
 
-AllCanLearn-v5 creates engaging multi-speaker discussions by orchestrating a panel of AI characters with different perspectives:
+AI Roundtable creates engaging multi-speaker discussions by orchestrating a panel of four AI characters with different perspectives:
 
 - **Exam Strategist** - Strategic guidance for competitive exams
-- **Serving Officer** - Real-world insights from active government officers  
+- **Serving Officer** - Real-world insights from active government officers
 - **Fresh Qualifier** - Relatable perspective from recently selected candidates
 - **Citizen** - Critical questioning from an informed citizen perspective
 
-Each episode includes audio synthesis (cross-platform: macOS `say` or Linux `espeak-ng`), JSON-formatted transcripts, quiz generation, and real-time chat functionality.
+Each episode includes audio synthesis (cross-platform: macOS `say` or Linux `espeak-ng`) and JSON-formatted transcripts.
 
 ## Features
 
 - ✅ Multi-character AI conversations using Groq API (LLaMA 3.1 8B)
 - ✅ Dynamic prompt engineering with conversation history
 - ✅ Cross-platform text-to-speech synthesis (macOS & Linux)
-- ✅ FastAPI backend with React frontend
-- ✅ AI-powered quiz generation with scoring
-- ✅ Real-time WebSocket chat system
-- ✅ Episode management and storage
-- ✅ Docker support for deployment
-- ✅ Responsive UI with modern design
+- ✅ FastAPI endpoints for easy integration
+- ✅ Asynchronous request handling
+- ✅ Docker support for Oracle VM deployment
+- ✅ Modular, maintainable codebase
 
 ## Tech Stack
 
 - **LLM**: Groq API (LLaMA 3.1 8B)
-- **Backend**: FastAPI + Uvicorn
-- **Frontend**: React 18 + TailwindCSS
+- **Web Framework**: FastAPI + Uvicorn
 - **TTS**: macOS native `say` command (or Linux `espeak-ng`)
 - **Async Runtime**: Python asyncio
 - **HTTP Client**: httpx
-- **Real-time**: WebSockets
 - **Containerization**: Docker & Docker Compose
 
 ## Project Structure
 
 ```
-AllCanLearn-v5/
-├── ControlRoom/           # Backend FastAPI application
-│   ├── main.py           # FastAPI application entry point
-│   ├── characters.py     # Character definitions and personalities
-│   ├── moderator.py      # Roundtable orchestration logic
-│   ├── episodes.py      # Episode management
-│   ├── quiz_generator.py # Quiz generation logic
-│   ├── chat.py          # WebSocket chat functionality
-│   └── requirements.txt # Python dependencies
-├── TheStage/             # React frontend application
-│   ├── src/             # React source code
-│   ├── public/          # Static assets
-│   ├── build/           # Built production files
-│   └── package.json     # Node.js dependencies
-├── SoundBooth/           # Text-to-speech processing
-│   ├── tts_client.py    # TTS client implementation
-│   └── character_voices.py # Voice configurations
-├── tts_output/          # Generated audio files
-├── episodes_data/       # Episode storage
-├── Dockerfile          # Docker container configuration
-├── docker-compose.yml  # Docker Compose setup
-├── setup-vm.sh        # Automated setup script
-├── .env               # Environment variables
-├── .gitignore         # Git ignore rules
-└── README.md          # This file
+ai-roundtable/
+├── app/
+│   ├── characters.py      # Character definitions and personalities
+│   ├── groq_client.py     # Groq API integration
+│   ├── moderator.py       # Roundtable orchestration logic
+│   ├── main.py            # FastAPI application
+│   ├── tts_client.py      # Cross-platform text-to-speech client
+│   ├── schemas.py         # (Optional) Pydantic models
+│   └── requirements.txt   # Python dependencies
+├── tts_output/            # Generated audio files
+├── Dockerfile             # Docker container configuration
+├── docker-compose.yml     # Docker Compose setup
+├── setup-vm.sh           # Automated Oracle VM setup
+├── DEPLOYMENT.md         # Oracle VM deployment guide
+├── QUICKSTART.md         # Quick start guide
+├── .env.example          # Environment variables template
+├── .gitignore            # Git ignore rules
+└── README.md             # This file
 ```
 
 ## Installation
@@ -79,56 +68,45 @@ AllCanLearn-v5/
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/Kamaraj13/AllCanLearn-v5.git
-   cd AllCanLearn-v5
+   git clone https://github.com/Kamaraj13/AI-Roundtable.git
+   cd AI-Roundtable
    ```
 
-2. **Set up Backend**
+2. **Create a virtual environment**
    ```bash
    python3 -m venv venv
    source venv/bin/activate
-   pip install -r ControlRoom/requirements.txt
    ```
 
-3. **Set up Frontend**
+3. **Install dependencies**
    ```bash
-   cd TheStage
-   npm install
-   npm run build
-   cd ..
+   pip install -r app/requirements.txt
    ```
 
 4. **Configure environment variables**
    ```bash
-   echo "GROQ_API_KEY=your_api_key_here" > .env
+   cp .env.example .env
    ```
    Edit `.env` and add your Groq API key:
    ```
-   GROQ_API_KEY=your_actual_api_key_here
+   GROQ_API_KEY=your_api_key_here
    ```
 
 5. **Run the application**
    ```bash
-   # Start backend (in one terminal)
-   source venv/bin/activate
-   uvicorn ControlRoom.main:app --reload --host 0.0.0.0 --port 8001
-   
-   # Start frontend (in another terminal)
-   cd TheStage
-   npm start
+   uvicorn app.main:app --reload
    ```
 
-The backend API will be available at `http://localhost:8001`
-The frontend will be available at `http://localhost:3000`
+The API will be available at `http://localhost:8000`
 
-### Setup Steps (Ubuntu Server)
+### Setup Steps (Oracle VM - Ubuntu 22.04 aarch64)
 
-See [QUICK_UBUNTU_SETUP.md](QUICK_UBUNTU_SETUP.md) for complete Ubuntu setup instructions.
+See [DEPLOYMENT.md](DEPLOYMENT.md) for complete Oracle VM setup instructions.
 
 Quick setup:
 ```bash
-git clone https://github.com/Kamaraj13/AllCanLearn-v5.git
-cd AllCanLearn-v5
+git clone https://github.com/Kamaraj13/AI-Roundtable.git
+cd AI-Roundtable
 chmod +x setup-vm.sh
 ./setup-vm.sh
 nano .env  # Add GROQ_API_KEY
@@ -169,36 +147,18 @@ POST /generate?tts=true
 }
 ```
 
-### Quiz Generation
-```
-POST /api/quiz/generate
-```
-Generate AI-powered quizzes on any topic.
-
-### Episode Management
-```
-GET /api/episodes
-```
-Get all generated episodes with metadata.
-
-### WebSocket Chat
-```
-WS /ws/chat
-```
-Real-time chat functionality.
-
 ## Usage Examples
 
 ### cURL
 ```bash
 # Health check
-curl http://localhost:8001/
+curl http://localhost:8000/
 
 # Generate without TTS
-curl -X POST http://localhost:8001/generate?tts=false
+curl -X POST http://localhost:8000/generate?tts=false
 
 # Generate with TTS
-curl -X POST http://localhost:8001/generate?tts=true
+curl -X POST http://localhost:8000/generate?tts=true
 ```
 
 ### Python
@@ -208,7 +168,7 @@ import asyncio
 
 async def main():
     async with httpx.AsyncClient() as client:
-        response = await client.post("http://localhost:8001/generate?tts=true")
+        response = await client.post("http://localhost:8000/generate?tts=true")
         episode = response.json()
         print(episode)
 
@@ -218,23 +178,23 @@ asyncio.run(main())
 ## Configuration
 
 ### Adjusting Conversation Turns
-Edit `ControlRoom/moderator.py`:
+Edit `app/moderator.py`:
 ```python
 MAX_TURNS = 6  # Change this to control conversation length
 ```
 
 ### Changing the Topic
-Edit `ControlRoom/moderator.py`:
+Edit `app/moderator.py`:
 ```python
 TOPIC = "Your custom topic here"
 ```
 
 ### Adding New Characters
-Edit `ControlRoom/characters.py` and add to the `CHARACTERS` list, then update the system prompt in `moderator.py`.
+Edit `app/characters.py` and add to the `CHARACTERS` list, then update the system prompt in `moderator.py`.
 
 ## Deployment
 
-### Docker (Linux/Ubuntu)
+### Docker (Linux/Oracle VM)
 ```bash
 docker-compose up --build
 ```
@@ -246,7 +206,7 @@ chmod +x setup-vm.sh
 ```
 
 ### Production with Supervisor
-See [SYSTEMD_SETUP.md](SYSTEMD_SETUP.md) for full instructions.
+See [DEPLOYMENT.md](DEPLOYMENT.md) for full instructions.
 
 ## Troubleshooting
 
@@ -262,16 +222,16 @@ pip install python-dotenv
 ### JSON parsing errors from Groq
 - Groq occasionally returns malformed JSON
 - The app has built-in retry/recovery logic
-- Check `ControlRoom/moderator.py:parse_responses()` for details
+- Check `app/moderator.py:parse_responses()` for details
 
 ### TTS not generating audio files
 - **macOS**: Verify `say` command works: `say "test"`
 - **Linux**: Verify espeak-ng: `espeak-ng -v en-in -w test.wav "test"`
 - Check file permissions in `tts_output/` directory
 
-### Port 8001 already in use
+### Port 8000 already in use
 ```bash
-lsof -i :8001
+lsof -i :8000
 kill -9 <PID>
 ```
 
@@ -282,25 +242,25 @@ kill -9 <PID>
 | FastAPI | ✅ | ✅ | ✅ |
 | Groq API | ✅ | ✅ | ✅ |
 | TTS | ✅ (say) | ✅ (espeak-ng) | ✅ (espeak-ng) |
-| React | ✅ | ✅ | ✅ |
 | Docker | ✅ | ✅ | ✅ |
 | aarch64 Support | ❌ | ✅ | ✅ |
 
 ## Next Steps
 
-- [ ] Add your Groq API key to `.env`
-- [ ] Test locally with both frontend and backend
-- [ ] Deploy to Ubuntu server
-- [ ] Add custom topics and characters
-- [ ] Setup monitoring and logging
-- [ ] Configure production deployment
+- [ ] Test locally
+- [ ] Deploy to Oracle VM
+- [ ] Add custom topics
+- [ ] Create web UI
+- [ ] Setup monitoring
+- [ ] Add rate limiting
+- [ ] Implement user authentication
 
 ## Documentation
 
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** - System architecture overview
-- **[QUICK_UBUNTU_SETUP.md](QUICK_UBUNTU_SETUP.md)** - Ubuntu setup guide
-- **[24_7_OPERATIONS.md](24_7_OPERATIONS.md)** - Operations guide
-- **[SYSTEMD_SETUP.md](SYSTEMD_SETUP.md)** - Production setup
+- **[QUICKSTART.md](QUICKSTART.md)** - Quick start guide
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Oracle VM deployment guide
+- **[GIT_SETUP.md](GIT_SETUP.md)** - Git configuration
+- **[TODO.md](TODO.md)** - Setup checklist
 
 ## License
 
@@ -312,4 +272,6 @@ For issues or questions, check the documentation files or open an issue on GitHu
 
 ---
 
-**Built with ❤️ for universal learning and AI-powered education**
+**Built with ❤️ for Indian government exam aspirants**
+
+Currently running on: Ubuntu 22.04 aarch64 (Oracle VM)

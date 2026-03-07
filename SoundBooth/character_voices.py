@@ -28,74 +28,54 @@ CHARACTER_VOICES = {
 }
 
 def get_voice_for_character(character_name: str) -> str:
-    """
-    Get the Piper TTS voice model for a character
-    
-    Args:
-        character_name: Name of the character
-        
-    Returns:
-        Voice model string for Piper TTS
-    """
-    character_name = character_name.lower()
-    
-    if character_name in CHARACTER_VOICES:
-        return CHARACTER_VOICES[character_name]["voice_model"]
-    
-    # Default fallback
-    return "en_US-lessac-medium"
-
-def get_character_info(character_name: str) -> dict:
-    """
-    Get full voice information for a character
-    
-    Args:
-        character_name: Name of the character
-        
-    Returns:
-        Dictionary with voice information
-    """
-    character_name = character_name.lower()
-    
-    if character_name in CHARACTER_VOICES:
-        return CHARACTER_VOICES[character_name]
-    
-    # Default fallback
-    return {
-        "voice_model": "en_US-lessac-medium",
-        "description": "Default American male voice",
-        "language": "en_US",
-        "accent": "American"
+    """Get voice model for a character"""
+    # Map character names to voice keys
+    character_mapping = {
+        "Exam Strategist": "captain",
+        "Serving Officer": "architect", 
+        "Fresh Qualifier": "captain",
+        "Citizen": "sage",
+        "Elena": "rebel",
+        "Fatima": "sage",
+        "Priya": "captain",
+        "Vikram": "architect",
+        "Sofia": "rebel",
+        "Alex": "captain",
+        "Jasmine": "sage"
     }
+    
+    voice_key = character_mapping.get(character_name, "captain")
+    return CHARACTER_VOICES[voice_key]["voice_model"]
+
+def get_voice_info(voice_model: str) -> dict:
+    """Get information about a voice model"""
+    for voice_data in CHARACTER_VOICES.values():
+        if voice_data["voice_model"] == voice_model:
+            return voice_data
+    return CHARACTER_VOICES["captain"]
 
 def list_available_voices() -> list:
-    """
-    List all available character voices
-    
-    Returns:
-        List of character names with their voice models
-    """
-    return [
-        {
-            "character": char,
-            "voice_model": info["voice_model"],
-            "description": info["description"]
-        }
-        for char, info in CHARACTER_VOICES.items()
-    ]
+    """List all available voice models"""
+    return [voice["voice_model"] for voice in CHARACTER_VOICES.values()]
 
-def get_required_models() -> list:
-    """
-    Get list of required Piper TTS models
+def download_voice_models():
+    """Download voice models (Linux only)"""
+    import os
     
-    Returns:
-        List of model files that need to be downloaded
-    """
-    return list(set(info["voice_model"] for info in CHARACTER_VOICES.values()))
-
-# Model download URLs (Piper TTS voice models)
-MODEL_URLS = {
-    "en_US-lessac-medium": "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en_US-lessac-medium.onnx",
-    "en_GB-apc-medium": "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en_GB-apc-medium.onnx", 
-    "es_ES-apc-medium": "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/es_ES-apc-medium.onnx"
-}
+    models_dir = "/home/$USER/piper_models"
+    if not os.path.exists(models_dir):
+        os.makedirs(models_dir, exist_ok=True)
+    
+    # Download commands for voice models
+    download_commands = {
+        "en_US-lessac-medium": "wget https://huggingface.co/rhasspy/piper-voice-v1-en-us-lessac-medium/resolve/main/en_US-lessac-medium.onnx -O " + models_dir + "/en_US-lessac-medium.onnx",
+        "en_GB-apc-medium": "wget https://huggingface.co/rhasspy/piper-voice-v1-en-gb-apc-medium/resolve/main/en_GB-apc-medium.onnx -O " + models_dir + "/en_GB-apc-medium.onnx",
+        "es_ES-apc-medium": "wget https://huggingface.co/rhasspy/piper-voice-v1-es-es-apc-medium/resolve/main/es_ES-apc-medium.onnx -O " + models_dir + "/es_ES-apc-medium.onnx"
+    }
+    
+    for voice_model, command in download_commands.items():
+        if not os.path.exists(f"{models_dir}/{voice_model}.onnx"):
+            print(f"Downloading {voice_model}...")
+            os.system(command)
+        else:
+            print(f"{voice_model} already exists")
